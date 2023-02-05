@@ -10,6 +10,9 @@ Users can also like a destination, give ratings, give reviews and also leave hel
 - Express
 - Mongoose
 - Cors
+- Joi
+- Multer
+- Cookie
 
 #### If you love the project, please leave a start and follow us on github.
 Thanks.
