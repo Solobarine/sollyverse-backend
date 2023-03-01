@@ -8,7 +8,7 @@ const User = mongoose.Schema({
     trim: true,
     min: 2,
     max: 30,
-    default: ''
+  default: ''
   },
   lastName: {
     type: String,
@@ -27,7 +27,8 @@ const User = mongoose.Schema({
   nickName: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
+    default: ''
   },
   email: {
     type: String,
@@ -60,7 +61,7 @@ const User = mongoose.Schema({
     default: '',
     required: true
   },
-  nationality: {
+  countryOfOrigin: {
     type: String,
     trim: true,
     default: '',
@@ -90,7 +91,7 @@ const User = mongoose.Schema({
     default: '',
     required: true
   },
-  country: {
+  countryOfResidence: {
     type: String,
     trim: true,
     default: '',
