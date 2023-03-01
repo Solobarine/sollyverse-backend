@@ -17,7 +17,7 @@ const City = mongoose.Schema({
   description: {
     type: String,
     min: 50,
-    max: 200,
+    max: 500,
     trim: true,
     required: true,
     default: ''
