@@ -47,6 +47,7 @@ const City = mongoose.Schema({
     default: 0,
     required: true
   },
+  images,
   timestamp
 });
 
