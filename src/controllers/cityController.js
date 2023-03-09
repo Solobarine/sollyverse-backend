@@ -16,7 +16,8 @@ module.exports = {
     let imagePath = []
     req.file.foreach(() => {
       const saveImage = storeImages(req.body.country, req.body.city)
-      upload(saveImage).single('file')
+      upload(saveImage).array('files')
+      console.log(req.files)
       const filePath = `${req.protocol}://${req.host}/${req.file.path}`
       console.log(filePath)
       imagePath.push(filePath)
