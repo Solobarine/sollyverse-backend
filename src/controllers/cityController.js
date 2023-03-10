@@ -31,7 +31,7 @@ module.exports = {
   },
   showAll: async (req, res) => {
     //Query cities
-    const cities = await City.find({})
+    const cities = await City.find({}).select({_id: 1, name: 1, country: 1, cost: 1})
     if (!cities) return res.status(401).send('No City currently Avaliable')
 
     //send response
@@ -61,11 +61,11 @@ module.exports = {
   showFavourites: async (req, res) => {
     const email = req.params.email
     const destinationIds = likeController.favouriteDestinations(email)
-    if (!destinationIds) return res.status(404).send('You currently do not have any favourites')
+    if (!destinationIds) return res.status(404).send({error: 'You currently do not have any favourites'})
 
     console.log(destinationIds)
     const favouriteCities = destinationIds.map(async destination => {
-      await City.find({destinationId: destination})
+      await City.find({destinationId: destination}).select({_id: 1, name: 1, country: 1, cost: 1})
     })
 
     res.status(200).send({favouriteCities})

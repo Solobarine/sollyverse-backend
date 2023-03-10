@@ -35,11 +35,11 @@ module.exports = {
     if (error == null) return res.status(400).send({error})
 
     // If password and confirm password do not match
-    if (req.body.password !== req.body.confirmPassword) return res.status(400).send('Passwords do not match')
+    if (req.body.password !== req.body.confirmPassword) return res.status(400).send({error: 'Passwords do not match'})
 
     // If email already exists
     const emailExists = await User.findOne({email: req.body.email})
-    if (emailExists) return res.status(400).send('User Already Exists')
+    if (emailExists) return res.status(400).send({error: 'User Already Exists'})
 
     const salt = await bcrypt.genSalt(15)
     const hashedPassword = await bcrypt.hash(req.body.password, salt)
@@ -50,10 +50,12 @@ module.exports = {
       nickname,countryOfOrigin, addressOne, addressTwo, city, state, countryOfResidence, zipCode})
     await user.save()
     messageController.createAccountMessage(user._id, user.email, messages.createAccount, user.firstName)
+    // Clear password before sending user record
+    user.password = ''
 
     // Create Json web token
     const token = jwt.sign({_id: user._id}, process.env.PRIVATE_KEY)
-    res.header('authentication_token', token).status(200).send({status: 'User created successfully'})
+    res.header('authentication_token', token).status(200).send({status: 'User created successfully', user})
   },
   login: async (req, res) => {
     // Validate inputs
@@ -71,7 +73,7 @@ module.exports = {
     const token = jwt.sign({_id: user._id}, process.env.PRIVATE_KEY)
     user.password = ''
     // send token
-    res.header('authentication_token', token).status(200).send(user) 
+    res.header('authentication_token', token).status(200).send({user}) 
   },
   updateBio: async (req, res) => {
     const id = req.params.id
@@ -92,7 +94,7 @@ module.exports = {
     await user.save()
     messageController.createUpdateMessage(user._id, user.email, messages.updateAccount)
 
-    res.status(200).send('Account updated successfully')
+    res.status(200).send('Account updated successfully', user)
   },
   updatePassword: async (req, res) => {
     const validate = passwordSchema.validate(req.body)

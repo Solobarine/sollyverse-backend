@@ -11,7 +11,7 @@ module.exports = {
     // Check if country exists
     const {name} = req.body.name
     const checkCountry = Country.findOne({name})
-    if (checkCountry) return res.status(401).send('Country already Exists')
+    if (checkCountry) return res.status(401).send({error: 'Country already Exists'})
 
     //Save Country to DB
     const country = new Country(req.body)
@@ -22,7 +22,7 @@ module.exports = {
   },
   showAll: async (req, res) => {
     //Get all Countries
-    const countries = await Country.find({})
+    const countries = await Country.find({}).select({_id, name})
     if (!countries) return res.status(400).send('Could not find any Country')
     // Get one Image from Cities
 
