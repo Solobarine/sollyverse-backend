@@ -1,6 +1,6 @@
-const Joi = require('joi');
+const Joi = require ('joi')
 
-const userSchema = Joi.object({
+const schema = Joi.object({
   firstName: Joi.string().min(2).max(30).required(),
   lastName: Joi.string().min(2).max(30).required(),
   email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }).required(),
@@ -10,4 +10,4 @@ const userSchema = Joi.object({
   dateOfBirth: Joi.date().less('1-1-2007').greater('1-1-1920'), 
 })
 
-module.exports = userSchema
+module.exports = schema

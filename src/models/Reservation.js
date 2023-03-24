@@ -50,8 +50,10 @@ const Reservation = mongoose.Schema({
     default: 0,
     required: true
   },
-  status: 'success',
-  timestamp
-});
+  status: {
+    type: String,
+    default: 'success'
+  }
+}, {timestamps: true});
 
 module.exports = mongoose.model('Reservation', Reservation);

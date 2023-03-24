@@ -20,7 +20,6 @@ const Like = mongoose.Schema({
     unique: true,
     default: ''
   },
-  timestamp
-})
+}, {timestamps: true})
 
 module.exports = mongoose.model('Like', Like);

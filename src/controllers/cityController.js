@@ -95,5 +95,10 @@ module.exports = {
 
     City.deleteOne({_id: cityId})
     res.status(200).send('City removed successfully')
+  },
+  showCities: async (name) => {
+    const cities = await City.find({ country: name}).select({_id, name, cost})
+    if (!cities) return null
+    return cities
   }
 }

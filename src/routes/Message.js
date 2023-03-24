@@ -1,12 +1,14 @@
 const express = require ('express')
+const auth = require ('../middleware/auth')
+const admin = require ('../middleware/authAdmin')
+const controller = require ('../controllers/messageController')
 
 const router = express.Router()
 
 // Create a Message
-router.post('/')
+router.post('/', admin, controller.create)
 
 // Get User Message
-router.get('/')
+router.get('/', auth, controller.view)
 
-// Delete Message
-router.delete('/:id')
+module.exports = router

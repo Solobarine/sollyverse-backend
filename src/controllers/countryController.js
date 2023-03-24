@@ -1,6 +1,7 @@
 const schema = require ('./validate/country');
 const Country = require ('../models/Country');
-const {off} = require('../models/Country');
+const likeController = require ('./likeController')
+const cityController = require ('./cityController')
 
 module.exports = {
   create: async (req, res) => {
@@ -36,6 +37,8 @@ module.exports = {
     if (!country) return res.status(400).send('Country not Found')
     // Find cities and one image
 
+    country.cities = cityController.showCities(country.name)
+    country.likes = likeController.showNumberOfLikes(countryId)
     // send response
     res.status(400).send({country})
   },

@@ -47,8 +47,9 @@ const City = mongoose.Schema({
     default: 0,
     required: true
   },
-  images,
-  timestamp
-});
+  images: {
+    type: Array,
+  }
+}, {timestamps: true});
 
 module.exports = mongoose.model('City', City);

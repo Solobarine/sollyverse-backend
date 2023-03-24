@@ -2,14 +2,19 @@ const cookie = require ('cookie');
 const bcrypt = require ('bcrypt');
 const jwt = require ('jsonwebtoken');
 const User = require ('../models/User');
+const Admin = require ('../models/Admin');
+const Staff = require ('../models/Staff');
 const userSchema = require ('./validate/user');
 const loginValidate = require ('./validate/loginValidate');
+const adminSchema = require ('./validate/admin');
 const passwordSchema = require ('./validate/changePassword');
 const messageController = require ('./messageController');
 const messages = require ('../preparedMessages');
 
 module.exports = {
   create: async(req, res) => {
+    console.log(req.body)
+    if (req.body) {
     const {
       firstName,
       lastName,
@@ -18,7 +23,7 @@ module.exports = {
       confirmPassword,
       phoneNumber,
       dateOfBirth
-    } = req.body
+    } = JSON.parse(req.body)
 
     const validate = userSchema.validate({
       firstName,
@@ -29,6 +34,7 @@ module.exports = {
       phoneNumber,
       dateOfBirth
     });
+    } else return res.status(400).send({error: 'Inputs cannot be empty'})
 
     const {error} = validate
     // If validation fails
@@ -60,7 +66,7 @@ module.exports = {
   login: async (req, res) => {
     // Validate inputs
     const validate = loginValidate(req.body);
-    if (valdate.error) return res.status(400).send({error: validate.error})
+    if (validate.error) return res.status(400).send({error: validate.error})
     // Find user
     const user = User.findOne({email: req.body.email})
     if (!user) return res.status(400).send('User not Found')
@@ -120,5 +126,48 @@ module.exports = {
 
     User.deleteOne({email: req.body.email})
     res.status(200).send('Account Removed Successfully')
+  },
+  // METHODS FOR ADMIN
+  createAdmin: async (req, res) => {
+    const validate = adminSchema.validate(req.body)
+    if (!validate) return res.status(400).send({error: validate.error})
+
+    const isStaff = await Staff.findOne({email: req.body.email})
+    if (!isStaff) return res.status(400).send({error: 'Unauthorized User'})
+
+    const isAdmin = await Admin.findOne({email: req.body.email})
+    if (isAdmin) return res.status(400).send({error: 'Admin alreadyy Exists'})
+
+    const salt = await bcrypt.genSalt(20)
+    const hashedPassword = await bcrypt.hash(req.body.password, salt)
+    const newAdmin = await new Admin(req.body)
+    newAdmin.password = hashedPassword
+    newAdmin.save()
+    return res.status(200).send({message: 'Admin created successfully', admin: newAdmin})
+  },
+  adminLogin: async (req, res) => {
+    const validate = loginValidate.validate(req.body)
+    if (validate.error) return res.status(400).send({error: validate.error})
+
+    const admin = await Admin.findOne({email: req.body.email})
+    if (!admin) return res.status(404).send({error: 'Admin not Found'})
+
+    const comparePassword = await bcrypt.compare(req.body.pasword, admin.password)
+    if (!comparePassword) return res.status(400).send({error: 'Invalid username or password'})
+
+    const token = jwt.sign({_id: admin._id}, process.env.PRIVATE_KEY)
+    admin.password = ''
+
+    return res.header({'admin_auth_token': token}).send({admin})
+  },
+  updateAdmin: async (req, res) => {
+    const validate = updateAdminSchema.validate(req.body)
+    if (validate.error) return res.status(400).send({error: validate.error})
+
+    const isAdmin = await Admin.findById(req.body._id)
+    if (!isAdmin) return res.status(404).send({error: 'Admin not Found'})
+
+    await Admin.update({_id: req.body._id}, req.body)
+    return res.status(200).send({status: 'Admin updated successfully'})
   }
 }
