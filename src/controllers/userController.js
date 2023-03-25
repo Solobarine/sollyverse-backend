@@ -14,7 +14,6 @@ const messages = require ('../preparedMessages');
 module.exports = {
   create: async(req, res) => {
     console.log(req.body)
-    if (req.body) {
     const {
       firstName,
       lastName,
@@ -23,7 +22,7 @@ module.exports = {
       confirmPassword,
       phoneNumber,
       dateOfBirth
-    } = JSON.parse(req.body)
+    } = req.body
 
     const validate = userSchema.validate({
       firstName,
@@ -34,11 +33,11 @@ module.exports = {
       phoneNumber,
       dateOfBirth
     });
-    } else return res.status(400).send({error: 'Inputs cannot be empty'})
+
 
     const {error} = validate
     // If validation fails
-    if (error == null) return res.status(400).send({error})
+    if (error) return res.status(400).send({error: error.message})
 
     // If password and confirm password do not match
     if (req.body.password !== req.body.confirmPassword) return res.status(400).send({error: 'Passwords do not match'})
@@ -86,6 +85,8 @@ module.exports = {
     const user = await User.findById(id)
     if (!user) return res.status(404).send('User not Found')
 
+    const updateUser = await User.updateOne({_id: id}, req.body)
+      /*
     const {firstName, lastName, email, phoneNumber,addressOne, addressTwo, city, state, zipCode, countryOfResidence} = req.body
     user.firstName = firstName
     user.lastName = lastName
@@ -99,8 +100,8 @@ module.exports = {
     user.countryOfResidence = countryOfResidence
     await user.save()
     messageController.createUpdateMessage(user._id, user.email, messages.updateAccount)
-
-    res.status(200).send('Account updated successfully', user)
+    */
+    res.status(200).send('Account updated successfully', updateUser)
   },
   updatePassword: async (req, res) => {
     const validate = passwordSchema.validate(req.body)
@@ -130,7 +131,7 @@ module.exports = {
   // METHODS FOR ADMIN
   createAdmin: async (req, res) => {
     const validate = adminSchema.validate(req.body)
-    if (!validate) return res.status(400).send({error: validate.error})
+    if (!validate) return res.status(400).send({error: validate.error.message})
 
     const isStaff = await Staff.findOne({email: req.body.email})
     if (!isStaff) return res.status(400).send({error: 'Unauthorized User'})
@@ -147,7 +148,7 @@ module.exports = {
   },
   adminLogin: async (req, res) => {
     const validate = loginValidate.validate(req.body)
-    if (validate.error) return res.status(400).send({error: validate.error})
+    if (validate.error) return res.status(400).send({error: validate.error.message})
 
     const admin = await Admin.findOne({email: req.body.email})
     if (!admin) return res.status(404).send({error: 'Admin not Found'})
@@ -162,7 +163,7 @@ module.exports = {
   },
   updateAdmin: async (req, res) => {
     const validate = updateAdminSchema.validate(req.body)
-    if (validate.error) return res.status(400).send({error: validate.error})
+    if (validate.error) return res.status(400).send({error: validate.error.message})
 
     const isAdmin = await Admin.findById(req.body._id)
     if (!isAdmin) return res.status(404).send({error: 'Admin not Found'})

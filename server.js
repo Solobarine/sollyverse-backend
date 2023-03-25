@@ -10,7 +10,8 @@ const country = require ('./src/routes/Country')
 const like = require ('./src/routes/Like')
 const message = require ('./src/routes/Message')
 const reservation = require('./src/routes/Reservation')
-const review = require ('./src/routes/Review')
+const review = require ('./src/routes/Review');
+const {json} = require('express');
 
 
 require('dotenv').config();
@@ -47,6 +48,8 @@ const app = express();
 app.use(cors({
   credenials: true
 }))
+
+app.use(express.json())
 
 // Add Routes
 app.use('/', user)
