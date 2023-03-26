@@ -43,14 +43,16 @@ module.exports = {
     const reviewExists = await Review.findById(reviewId)
     if (!reviewExists) return res.status(404).send('Review not Found')
 
-    const {destinationId, firstName, lastName, email, reviewTitle, review} = req.body
+    const review = await Review.updateOne({_id: reviewId}, req.body)
+
+    /*const {destinationId, firstName, lastName, email, reviewTitle, review} = req.body
     review.destinationId = destinationId
     review.firstName = firstName
     review.lastName = lastName
     review.email = email
     review.reviewTitle = reviewTitle
     review.review = review
-    await review.save()
+    await review.save()*/
     res.status(200).send('Review updated successfully')
   },
 }

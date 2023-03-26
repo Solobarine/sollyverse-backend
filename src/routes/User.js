@@ -6,7 +6,7 @@ const staffController = require ('../controllers/staffController')
 
 const router = express.Router()
 
-router.post('/login', auth, controller.login)
+router.post('/login', controller.login)
 
 router.post('/admin/login', admin, controller.adminLogin)
 
@@ -14,7 +14,7 @@ router.post('/register', controller.create)
 
 router.post('/admin/register', admin, controller.createAdmin)
 
-router.post('/staff/create', admin, staffController.create)
+router.post('/admin/staff/create', staffController.create)
 
 router.put('/update', auth, controller.updateBio)
 

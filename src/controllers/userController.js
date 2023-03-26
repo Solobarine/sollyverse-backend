@@ -10,10 +10,12 @@ const adminSchema = require ('./validate/admin');
 const passwordSchema = require ('./validate/changePassword');
 const messageController = require ('./messageController');
 const messages = require ('../preparedMessages');
+require('dotenv').config();
+
+const key = 'SOLLYVERSE4625877359'
 
 module.exports = {
   create: async(req, res) => {
-    console.log(req.body)
     const {
       firstName,
       lastName,
@@ -50,29 +52,36 @@ module.exports = {
     const hashedPassword = await bcrypt.hash(req.body.password, salt)
 
     const nickname = 'Globe Trotter'
+    req.body.nickName = nickname
+    req.body.password = hashedPassword
 
-    const user = new User({firstName, lastName, email, hashedPassword, phoneNumber, dateOfBirth, gender,
-      nickname,countryOfOrigin, addressOne, addressTwo, city, state, countryOfResidence, zipCode})
-    await user.save()
-    messageController.createAccountMessage(user._id, user.email, messages.createAccount, user.firstName)
-    // Clear password before sending user record
-    user.password = ''
+    try {
+      const user = new User(req.body)
+      await user.save()
+      messageController.createAccountMessage(user._id, user.email, messages.createAccount, user.firstName)
+      
+      // Clear password before sending user record
+      user.password = ''
 
-    // Create Json web token
-    const token = jwt.sign({_id: user._id}, process.env.PRIVATE_KEY)
-    res.header('authentication_token', token).status(200).send({status: 'User created successfully', user})
+      // Create Json web token
+      const token = jwt.sign({_id: user._id}, process.env.PRIVATE_KEY)
+      res.header('authentication_token', token).status(200).send({status: 'User created successfully', user})
+    } catch(error) {
+      return res.status(400).send({error})
+    }
+
   },
   login: async (req, res) => {
     // Validate inputs
-    const validate = loginValidate(req.body);
+    const validate = loginValidate.validate(req.body);
     if (validate.error) return res.status(400).send({error: validate.error})
     // Find user
-    const user = User.findOne({email: req.body.email})
-    if (!user) return res.status(400).send('User not Found')
+    const user = await User.findOne({email: req.body.email})
+    if (!user) return res.status(400).send({error: 'User not Found'})
 
     // compare hashed passwords
     const comparePassword = await bcrypt.compare(req.body.password, user.password)
-    if (!comparePassword) return res.status(400).send('Invalid Email or Password')
+    if (!comparePassword) return res.status(400).send({error: 'Invalid Email or Password'})
 
     // Create Token
     const token = jwt.sign({_id: user._id}, process.env.PRIVATE_KEY)
@@ -81,32 +90,17 @@ module.exports = {
     res.header('authentication_token', token).status(200).send({user}) 
   },
   updateBio: async (req, res) => {
-    const id = req.params.id
+    const id = req.body._id
     const user = await User.findById(id)
     if (!user) return res.status(404).send('User not Found')
 
     const updateUser = await User.updateOne({_id: id}, req.body)
-      /*
-    const {firstName, lastName, email, phoneNumber,addressOne, addressTwo, city, state, zipCode, countryOfResidence} = req.body
-    user.firstName = firstName
-    user.lastName = lastName
-    user.email = email
-    user.phoneNumber = phoneNumber
-    user.addressOne = addressOne
-    user.addressTwo = addressTwo
-    user.city = city
-    user.state = state
-    user,zipCode = zipCode
-    user.countryOfResidence = countryOfResidence
-    await user.save()
-    messageController.createUpdateMessage(user._id, user.email, messages.updateAccount)
-    */
-    res.status(200).send('Account updated successfully', updateUser)
+    res.status(200).send({status: 'Account updated successfully'})
   },
   updatePassword: async (req, res) => {
     const validate = passwordSchema.validate(req.body)
 
-    if (validate.error) return res.status(400).send('Invalid Passwords')
+    if (validate.error) return res.status(400).send({error: 'Invalid Passwords'})
   
     const user = User.findById({_id: req.user})
 
@@ -116,17 +110,17 @@ module.exports = {
     await user.save()
     messageController.createUpdateMessage(user._id, user.email, messages.updatePassword)
 
-    res.status(400).send('Password Changed Successfully')
+    res.status(200).send({status: 'Password Changed Successfully'})
   },
   delete: async (req, res) => {
     const user = User.findOne({email: req.body.email})
     if (!user) return res.status(400).send('User not Found')
 
     const verifyPassword = await bcrypt.compare(req.body.password, user.password)
-    if (!verifyPassword) return res.status(400).send('Account Removal Failed')
+    if (!verifyPassword) return res.status(400).send({error: 'Account Removal Failed'})
 
     User.deleteOne({email: req.body.email})
-    res.status(200).send('Account Removed Successfully')
+    res.status(200).send({status: 'Account Removed Successfully'})
   },
   // METHODS FOR ADMIN
   createAdmin: async (req, res) => {
@@ -137,14 +131,18 @@ module.exports = {
     if (!isStaff) return res.status(400).send({error: 'Unauthorized User'})
 
     const isAdmin = await Admin.findOne({email: req.body.email})
-    if (isAdmin) return res.status(400).send({error: 'Admin alreadyy Exists'})
+    if (isAdmin) return res.status(400).send({error: 'Admin already Exists'})
 
     const salt = await bcrypt.genSalt(20)
     const hashedPassword = await bcrypt.hash(req.body.password, salt)
     const newAdmin = await new Admin(req.body)
     newAdmin.password = hashedPassword
     newAdmin.save()
-    return res.status(200).send({message: 'Admin created successfully', admin: newAdmin})
+    // Create JWT for admin
+    const token = jwt.sign({_id: newAdmin._id}, process.env.PRIVATE_KEY)
+    newAdmin.password = ''
+
+    return res.header({'admin_auth_token': token}).status(200).send({message: 'Admin created successfully', admin: newAdmin})
   },
   adminLogin: async (req, res) => {
     const validate = loginValidate.validate(req.body)
@@ -159,7 +157,7 @@ module.exports = {
     const token = jwt.sign({_id: admin._id}, process.env.PRIVATE_KEY)
     admin.password = ''
 
-    return res.header({'admin_auth_token': token}).send({admin})
+    return res.header({'admin_auth_token': token}).status(200).send({admin})
   },
   updateAdmin: async (req, res) => {
     const validate = updateAdminSchema.validate(req.body)
@@ -168,7 +166,7 @@ module.exports = {
     const isAdmin = await Admin.findById(req.body._id)
     if (!isAdmin) return res.status(404).send({error: 'Admin not Found'})
 
-    await Admin.update({_id: req.body._id}, req.body)
+    await Admin.updateOne({_id: req.body._id}, req.body)
     return res.status(200).send({status: 'Admin updated successfully'})
   }
 }

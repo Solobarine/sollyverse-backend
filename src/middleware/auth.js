@@ -1,5 +1,6 @@
 const jwt = require ('jsonwebtoken');
 const User = require('../models/User');
+require('dotenv').config()
 
 const verifyToken = async (req, res, next) => {
   const token = req.header('authentication_token')
@@ -7,7 +8,7 @@ const verifyToken = async (req, res, next) => {
 
   try {
     const validate = jwt.verify(token, process.env.PRIVATE_KEY)
-    const user = await User.findById(validate).select({_id})
+    const user = await User.findById(validate._id).select({_id: 1})
     req.user = user
     next()
   } catch (error) {

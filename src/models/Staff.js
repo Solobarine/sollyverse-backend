@@ -40,7 +40,7 @@ const Staff = mongoose.Schema({
   },
   phoneNumber: {
     type: String,
-    match:  /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4}$/,
+    match:  /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4}$/,
     trim: true,
     required: true,
     unique: true,
@@ -85,9 +85,9 @@ const Staff = mongoose.Schema({
   zipCode: {
     type: Number,
     required: true,
-    min: 6,
-    max: 6,
-    default: 000000
+    min: 100000,
+    max: 999999,
+    default: 100000
   },
 }, {timestamps: true});
 

@@ -32,7 +32,6 @@ const User = mongoose.Schema({
   },
   email: {
     type: String,
-    match:  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
     required: true,
     trim: true,
     unique: true,
@@ -46,7 +45,6 @@ const User = mongoose.Schema({
   },
   phoneNumber: {
     type: String,
-    match:  /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4}$/,
     trim: true,
     required: true,
     unique: true,
@@ -75,8 +73,7 @@ const User = mongoose.Schema({
   addressTwo: {
     type: String,
     trim: true,
-    default: '',
-    required: true
+    default: ''
   },
   city: {
     type: String,
@@ -99,10 +96,14 @@ const User = mongoose.Schema({
   zipCode: {
     type: Number,
     required: true,
-    min: 6,
-    max: 6,
+    min: 100000,
+    max: 999999,
     default: 000000
   },
+  hash: {
+    type: String,
+    default: ''
+  }
 }, {timestamps: true});
 
 module.exports = mongoose.model('User', User)
