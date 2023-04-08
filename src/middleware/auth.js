@@ -7,6 +7,7 @@ const verifyToken = async (req, res, next) => {
   if (!token) return res.status(401).send('Access Denied')
 
   try {
+    console.log(token)
     const validate = jwt.verify(token, process.env.PRIVATE_KEY)
     const user = await User.findById(validate._id).select({_id: 1})
     req.user = user

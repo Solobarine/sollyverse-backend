@@ -1,18 +1,19 @@
 const jwt = require ('jsonwebtoken')
-const User = require('../models/User')
+const Admin = require('../models/Admin')
 require('dotenv').config()
 
 const verifyAdmin = async (req, res, next) => {
-  const token = res.header('authentication_token')
-  if (!token) res.status(401).send({error: 'Token not found'})
+  const token = req.header('admin_auth_token')
+  if (!token) return res.status(401).send({error: 'Token not found'})
 
   try {
     const validate = jwt.verify(token, process.env.PRIVATE_KEY)
-    const user = await User.findById(validate._id).select({__id})
-    req.user = user
+    const admin = await Admin.findById(validate._id).select({_id: 1})
+    req.admin = admin
     next()
   } catch (error) {
-    res.status(500).send({error})
+    res.status(500).send({error: "An error occured"})
+    console.log(error)
   }
 }
 
