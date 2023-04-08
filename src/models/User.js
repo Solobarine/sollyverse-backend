@@ -99,10 +99,6 @@ const User = mongoose.Schema({
     min: 100000,
     max: 999999,
     default: 000000
-  },
-  hash: {
-    type: String,
-    default: ''
   }
 }, {timestamps: true});
 

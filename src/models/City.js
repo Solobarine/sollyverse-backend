@@ -16,39 +16,23 @@ const City = mongoose.Schema({
   },
   description: {
     type: String,
-    min: 50,
-    max: 500,
     trim: true,
     required: true,
     default: ''
   },
-  rating: {
-    type: Number,
-    min: 1,
-    max: 5,
-    default: 0.0
-  },
   location: {
     longitude: {
-      type: Number,
+      type: String,
       required: true,
       unique: true,
       default: 0.0000
     },
     latitude: {
-      type: Number,
+      type: String,
       required: true,
       unique: true,
       default: 0.0000
     }
-  },
-  visitors: {
-    type: Number,
-    default: 0,
-    required: true
-  },
-  images: {
-    type: Array,
   }
 }, {timestamps: true});
 

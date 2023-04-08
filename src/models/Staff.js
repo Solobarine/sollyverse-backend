@@ -8,7 +8,7 @@ const Staff = mongoose.Schema({
     trim: true,
     min: 2,
     max: 30,
-  default: ''
+    default: ''
   },
   lastName: {
     type: String,
@@ -40,7 +40,7 @@ const Staff = mongoose.Schema({
   },
   phoneNumber: {
     type: String,
-    match:  /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4}$/,
+    match:  /^[\+]?[0-9]{3}?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4}$/,
     trim: true,
     required: true,
     unique: true,
@@ -61,8 +61,7 @@ const Staff = mongoose.Schema({
   addressTwo: {
     type: String,
     trim: true,
-    default: '',
-    required: true
+    default: ''
   },
   city: {
     type: String,
