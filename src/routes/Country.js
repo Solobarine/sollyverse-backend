@@ -6,18 +6,18 @@ const controller = require ('../controllers/countryController')
 const router = express.Router()
 
 // Get all Countries
-router.get('/', auth, controller.showAll)
+router.get('/', controller.showAll)
 
 // Create a Country
 router.post('/', admin, controller.create)
 
 // Get One Country
-router.get('/country/:id', controller.showOne)
+router.get('/:id', controller.showOne)
 
 // Upate Country
-router.put('/country/:id', admin, controller.update)
+router.patch('/:id', admin, controller.update)
 
 // Delete Country
-router.delete('/country/:id', admin, controller.delete)
+router.delete('/:id', admin, controller.delete)
 
 module.exports = router

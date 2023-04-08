@@ -3,23 +3,35 @@ const auth = require ('../middleware/auth')
 const admin = require ('../middleware/authAdmin')
 const controller = require ('../controllers/userController')
 const staffController = require ('../controllers/staffController')
+const loginWithToken = require('../middleware/loginWithToken')
 
 const router = express.Router()
 
+// User Login
 router.post('/login', controller.login)
 
-router.post('/admin/login', admin, controller.adminLogin)
+// Login With token
+router.post('/token/login', loginWithToken)
 
+// Admin Login
+router.post('/admin/login', controller.adminLogin)
+
+// User Registration
 router.post('/register', controller.create)
 
-router.post('/admin/register', admin, controller.createAdmin)
+// Admin Registration
+router.post('/admin/register', controller.createAdmin)
 
-router.post('/admin/staff/create', staffController.create)
+// Register Staff
+router.post('/admin/staff/create', admin, staffController.create)
 
+// Update User details
 router.put('/update', auth, controller.updateBio)
 
+// Update Admin Bio
 router.put('/admin/update', admin, controller.updateAdmin)
 
+// Cancel User Account
 router.delete('/delete', auth, controller.delete)
 
 module.exports = router
