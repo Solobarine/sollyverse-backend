@@ -1,7 +1,6 @@
 const express = require ('express');
 const cors = require ('cors');
 const cookie = require ('cookie');
-const Multer = require ('multer');
 const mongoose = require ('mongoose');
  
 const user = require ('./src/routes/User')
