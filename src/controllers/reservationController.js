@@ -17,7 +17,7 @@ module.exports = {
     // Check if city exists
     const cityId = req.body.id
     const cityExists = await City.findById(cityId)
-    if (!cityExists) return res.status(404).send('City not Found')
+    if (!cityExists) return res.status(404).send({error: 'City not Found'})
 
     // save reservation
     const reservation = new Reservation(req.body)
@@ -25,16 +25,16 @@ module.exports = {
     messageController.createMessageReservation(user._id, user.email, messages.createReservation, cityExists.name, cityExists.country, user._id)
 
     // send response
-    res.status(200).send('Reservation successfully created')
+    res.status(200).send({response: 'Reservation successfully created'})
   },
   showReservation: async (req, res) => {
     //Verify user
     const user = User.findById(req.user)
-    if (user.email !== req.body.email) return res.status(400).send('Access Denied')
+    if (user.email !== req.body.email) return res.status(400).send({error: 'Access Denied'})
 
     //Get reservations
     const reservations = await Reservation.find({email: user.email})
-    if (!reservations) return res.status(404).send('No Reservations Found')
+    if (!reservations) return res.status(404).send({error: 'No Reservations Found'})
 
     //send response
     res.status(200).send({reservations})
@@ -42,20 +42,20 @@ module.exports = {
   cancel: async (req, res) => {
     // Verify user
     const user = User.findById(req.user)
-    if (user.email !== req.body.email) return res.status(400).send('Access Denied')
+    if (user.email !== req.body.email) return res.status(400).send({error: 'Access Denied'})
     // Get reservation
     const id = req.params.id
     const reservation = await Reservation.findById(id)
-    if (!reservation) return res.status(404).send('Reservation not Found')
+    if (!reservation) return res.status(404).send({error: 'Reservation not Found'})
 
     // cancel reservation
     const city = await City.findById(reservation.cityId)
-    if (!city) return res.status(404).send('City not Found')
+    if (!city) return res.status(404).send({error: 'City not Found'})
 
     reservation.status = 'cancelled'
     await reservation.save()
     messageController.createMessageReservation(user._id, user.email, messages.cancelReservation, city.name, city.country, user._id)
 
-    res.status(200).send('Reservation successfully cancelled')
+    res.status(200).send({response: 'Reservation successfully cancelled'})
   },
 }

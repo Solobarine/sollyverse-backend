@@ -1,7 +1,7 @@
 const schema = require ('./validate/country');
 const Country = require ('../models/Country');
 const likeController = require ('./likeController')
-const cityController = require ('./cityController')
+const cityController = require ('./cityController');
 
 module.exports = {
   create: async (req, res) => {
@@ -10,42 +10,50 @@ module.exports = {
     if (validate.error) return res.status(400).send({error: validate.error})
 
     // Check if country exists
-    const {name} = req.body.name
-    const checkCountry = Country.findOne({name})
-    if (checkCountry) return res.status(401).send({error: 'Country already Exists'})
+    const {name} = req.body
+    const checkCountry = await Country.findOne({name})
+    if (checkCountry) return res.status(400).send({error: 'Country already Exists'})
+    console.log(checkCountry)
 
     //Save Country to DB
-    const country = new Country(req.body)
-    country.save()
+   try {
+     const country = new Country(req.body)
+     await country.save()
 
-    //Send response
-    res.status(200).send('New Country created')
+      //Send response
+     return res.status(200).send({response: 'New Country successfully added'})
+   } catch (error) {
+    console.log(error)
+    return res.status(400).send({error})
+   }
   },
   showAll: async (req, res) => {
     //Get all Countries
-    const countries = await Country.find({}).select({_id, name})
-    if (!countries) return res.status(400).send('Could not find any Country')
+    const countries = await Country.find({}).select({_id: 1, name: 1})
+    if (!countries) return res.status(400).send({error: 'Could not find any Country'})
     // Get one Image from Cities
 
     //Send countries
-    res.status(200).send({countries})
+    return res.status(200).send({countries})
   },
   showOne: async (req, res) => {
     // Get a country
     const countryId = req.params.id
+    console.log(countryId)
     const country = await Country.findOne({_id: countryId})
-    if (!country) return res.status(400).send('Country not Found')
+    if (!country) return res.status(400).send({error: 'Country not Found'})
     // Find cities and one image
 
-    country.cities = cityController.showCities(country.name)
-    country.likes = likeController.showNumberOfLikes(countryId)
+    const cities = cityController.showCities(country.name)
+    const likes = likeController.showNumberOfLikes(countryId)
+    console.log(country)
     // send response
-    res.status(400).send({country})
+    return res.status(200).send({country, cities, likes})
   },
   update: async (req, res) => {
-    // Validate Country
-    const validate = schema.validate(req.body)
-    if(validate.error) return res.status(400).send({error: validate.error})
+    // // Validate Country
+    // const validate = schema.validate(req.body)
+    // if(validate.error) return res.status(400).send({error: validate.error})
 
     // Query country
     const countryId = req.params.id
@@ -53,29 +61,24 @@ module.exports = {
     if (!country) return res.status(400).send('Country not Found')
 
     //update country
-    const {name, description, capital, continent, officialLanguage, location, likes} = req.body
-    country.name = name
-    country.description = description
-    country.capital = capital
-    country.continent = continent
-    country.officialLanguage = officialLanguage
-    country.location = location
-    country.likes = likes
-    await country.save()
-
-    //send response
-    res.status(200).send('Country successfully updated')
+    try {
+      await Country.updateOne({_id: countryId}, req.body)
+      //send response
+      return res.status(200).send({response: 'Country successfully updated'})
+    } catch (error) {
+      return res.status(401).send({error})
+    }
   },
   delete: async (req, res) => {
     // Query Country
     const countryId = req.params.id
     const country = await Country.findById(countryId)
-    if (!country) return res.status(400).send('Country not Found')
+    if (!country) return res.status(400).send({response: 'Country not Found'})
 
     //delete country
     country.deleteOne({_id: countryId})
 
     //send response
-    res.status(200).send('Couontry deleted Successfully')
+    return res.status(200).send({response: 'Country deleted Successfully'})
   }
 }

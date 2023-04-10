@@ -30,8 +30,13 @@ module.exports = {
     return numberOfLikes
   },
   mostPopularDestinations: async () => {
-    const popularDestinations = await Like.aggregate().sortByCount('destinationId').limit(5)
-    return popularDestinations
+    // const popularDestinations =  await Like.aggregate([{
+    //   $group: {
+    //     id: '$_id',
+    //     count: {$sum: 1}
+    //   }
+    // }])
+    // return popularDestinations
   },
   favouriteDestinations: async (email) => {
     const favourites = await Like.find({email}).select('destinationId')

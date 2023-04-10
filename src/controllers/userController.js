@@ -36,11 +36,11 @@ module.exports = {
       dateOfBirth
     });
 
-
+    console.log(req.body)
     const {error} = validate
     // If validation fails
-    if (error) return res.status(400).send({error: error.message})
-
+    if (error) return res.status(400).send({error: error.details[0].message})
+console.log(req.body)
     // If password and confirm password do not match
     if (req.body.password !== req.body.confirmPassword) return res.status(400).send({error: 'Passwords do not match'})
 
@@ -65,7 +65,7 @@ module.exports = {
 
       // Create Json web token
       const token = jwt.sign({_id: user._id}, process.env.PRIVATE_KEY)
-      res.header('authentication_token', token).status(200).send({status: 'User created successfully', user})
+      res.header('authentication_token', token).status(200).send({status: 'User created successfully', user, token})
     } catch(error) {
       return res.status(400).send({error})
     }
@@ -74,7 +74,7 @@ module.exports = {
   login: async (req, res) => {
     // Validate inputs
     const validate = loginValidate.validate(req.body);
-    if (validate.error) return res.status(400).send({error: validate.error})
+    if (validate.error) return res.status(400).send({error: validate.error.details[0].message})
     // Find user
     const user = await User.findOne({email: req.body.email})
     if (!user) return res.status(400).send({error: 'User not Found'})
@@ -87,7 +87,7 @@ module.exports = {
     const token = jwt.sign({_id: user._id}, process.env.PRIVATE_KEY)
     user.password = ''
     // send token
-    res.header('authentication_token', token).status(200).send({user}) 
+    res.header('authentication_token', token).status(200).send({user, token}) 
   },
   updateBio: async (req, res) => {
     const id = req.body._id
@@ -125,7 +125,7 @@ module.exports = {
   // METHODS FOR ADMIN
   createAdmin: async (req, res) => {
     const validate = adminSchema.validate(req.body)
-    if (!validate) return res.status(400).send({error: validate.error.message})
+    if (!validate.error) return res.status(400).send({error: validate.error.message})
 
     const isStaff = await Staff.findOne({email: req.body.email})
     if (!isStaff) return res.status(400).send({error: 'Unauthorized User'})
@@ -133,14 +133,17 @@ module.exports = {
     const isAdmin = await Admin.findOne({email: req.body.email})
     if (isAdmin) return res.status(400).send({error: 'Admin already Exists'})
 
-    const salt = await bcrypt.genSalt(20)
-    const hashedPassword = await bcrypt.hash(req.body.password, salt)
-    const newAdmin = await new Admin(req.body)
-    newAdmin.password = hashedPassword
-    newAdmin.save()
+    const comparePassword = await bcrypt.compare(req.body.password, isStaff.password)
+    if (!comparePassword) return res.status(400).send({error: "Invalid email or password"})
+
+    req.body.staffId = isStaff._id
+    req.body.password = isStaff.password
+
+    const newAdmin = new Admin(req.body)
+    await newAdmin.save()
+
     // Create JWT for admin
     const token = jwt.sign({_id: newAdmin._id}, process.env.PRIVATE_KEY)
-    newAdmin.password = ''
 
     return res.header({'admin_auth_token': token}).status(200).send({message: 'Admin created successfully', admin: newAdmin})
   },
@@ -150,8 +153,10 @@ module.exports = {
 
     const admin = await Admin.findOne({email: req.body.email})
     if (!admin) return res.status(404).send({error: 'Admin not Found'})
+    console.log(admin)
+    console.log(req.body)
 
-    const comparePassword = await bcrypt.compare(req.body.pasword, admin.password)
+    const comparePassword = await bcrypt.compare(req.body.password, admin.password)
     if (!comparePassword) return res.status(400).send({error: 'Invalid username or password'})
 
     const token = jwt.sign({_id: admin._id}, process.env.PRIVATE_KEY)
