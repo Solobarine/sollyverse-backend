@@ -7,7 +7,7 @@ module.exports = {
   create: async (req, res) => {
     //Validate country
     const validate = schema.validate(req.body)
-    if (validate.error) return res.status(400).send({error: validate.error})
+    if (validate.error) return res.status(400).send({error: validate.error.details[0].message})
 
     // Check if country exists
     const {name} = req.body
@@ -40,6 +40,9 @@ module.exports = {
     // Get a country
     const countryId = req.params.id
     console.log(countryId)
+
+    if (!countryId) return res.status(400).send({error: 'Id not found'})
+
     const country = await Country.findOne({_id: countryId})
     if (!country) return res.status(400).send({error: 'Country not Found'})
     // Find cities and one image

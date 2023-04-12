@@ -159,17 +159,19 @@ console.log(req.body)
     const comparePassword = await bcrypt.compare(req.body.password, admin.password)
     if (!comparePassword) return res.status(400).send({error: 'Invalid username or password'})
 
+    const adminInfo = await Staff.findById(admin.staffId)
+
     const token = jwt.sign({_id: admin._id}, process.env.PRIVATE_KEY)
     admin.password = ''
 
-    return res.header({'admin_auth_token': token}).status(200).send({admin})
+    return res.header({'admin_auth_token': token}).status(200).send({admin, adminInfo, token})
   },
   updateAdmin: async (req, res) => {
     const validate = updateAdminSchema.validate(req.body)
     if (validate.error) return res.status(400).send({error: validate.error.message})
 
     const isAdmin = await Admin.findById(req.body._id)
-    if (!isAdmin) return res.status(404).send({error: 'Admin not Found'})
+    if (!isAdmin) return res.status(400).send({error: 'Admin not Found'})
 
     await Admin.updateOne({_id: req.body._id}, req.body)
     return res.status(200).send({status: 'Admin updated successfully'})
