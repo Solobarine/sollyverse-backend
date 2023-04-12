@@ -1,9 +1,8 @@
-const mongoose = require 'mongoose';
+const mongoose = require ('mongoose');
 
 const Like = mongoose.Schema({
   destinationId: {
     type: String,
-    match: '',
     required: true,
     default: ''
   },

@@ -1,4 +1,4 @@
-const mongoose = require 'mongoose';
+const mongoose = require ('mongoose');
 
 const Country = mongoose.Schema({
   name: {
@@ -7,9 +7,11 @@ const Country = mongoose.Schema({
     default: '',
     unique: true
   },
-  descriptiom: {
+  description: {
     type: String,
     required: true,
+    min: 20,
+    max: 600,
     default: '',
     trim: true
   },
@@ -47,10 +49,8 @@ const Country = mongoose.Schema({
       default: 0.0000
     }
   },
-  ratings: {
+  likes: {
     type: Number,
-    min: 1,
-    max: 5,
     default: 0.0
   }
 })

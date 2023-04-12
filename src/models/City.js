@@ -1,4 +1,4 @@
-const mongoose = require 'mongoose';
+const mongoose = require ('mongoose');
 
 const City = mongoose.Schema({
   name: {
@@ -17,7 +17,7 @@ const City = mongoose.Schema({
   description: {
     type: String,
     min: 50,
-    max: 200,
+    max: 500,
     trim: true,
     required: true,
     default: ''
@@ -47,6 +47,7 @@ const City = mongoose.Schema({
     default: 0,
     required: true
   },
+  images,
   timestamp
 });
 

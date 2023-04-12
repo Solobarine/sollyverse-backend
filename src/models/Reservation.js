@@ -1,9 +1,8 @@
-const mongoose = require 'mongoose';
+const mongoose = require ('mongoose');
 
 const Reservation = mongoose.Schema({
   cityId: {
     type: String,
-    match: '',
     trim: true,
     default: '',
     required: true
@@ -51,7 +50,7 @@ const Reservation = mongoose.Schema({
     default: 0,
     required: true
   },
-  status: 'pending',
+  status: 'success',
   timestamp
 });
 

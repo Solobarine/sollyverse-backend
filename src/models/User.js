@@ -1,4 +1,4 @@
-const mongoose = require 'mongoose';
+const mongoose = require ('mongoose');
 
 const User = mongoose.Schema({
   firstName: {
@@ -8,7 +8,7 @@ const User = mongoose.Schema({
     trim: true,
     min: 2,
     max: 30,
-    default: ''
+  default: ''
   },
   lastName: {
     type: String,
@@ -23,8 +23,13 @@ const User = mongoose.Schema({
     type: String,
     default: '',
     required: true
-  }
-  nickName,
+  },
+  nickName: {
+    type: String,
+    required: true,
+    trim: true,
+    default: ''
+  },
   email: {
     type: String,
     match:  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
@@ -35,7 +40,6 @@ const User = mongoose.Schema({
   },
   password: {
     type: String,
-    match: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
     trim: true,
     required: true,
     default: ''
@@ -56,7 +60,7 @@ const User = mongoose.Schema({
     default: '',
     required: true
   },
-  nationality: {
+  countryOfOrigin: {
     type: String,
     trim: true,
     default: '',
@@ -86,7 +90,7 @@ const User = mongoose.Schema({
     default: '',
     required: true
   },
-  country: {
+  countryOfResidence: {
     type: String,
     trim: true,
     default: '',
