@@ -50,7 +50,6 @@ const Review = mongoose.Schema({
     default: '',
     required: true
   },
-  timestamp
-});
+}, {timestamps: true});
 
 module.exports = mongoose.model('Review', Review);

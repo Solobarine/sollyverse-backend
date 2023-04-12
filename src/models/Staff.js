@@ -1,14 +1,14 @@
-const mongoose = require ('mongoose');
+const mongoose = require ('mongoose')
 
-const User = mongoose.Schema({
-  firstName: {
+const Staff = mongoose.Schema({
+ firstName: {
     type: String,
     lowercase: true,
     required: true,
     trim: true,
     min: 2,
     max: 30,
-  default: ''
+    default: ''
   },
   lastName: {
     type: String,
@@ -24,14 +24,9 @@ const User = mongoose.Schema({
     default: '',
     required: true
   },
-  nickName: {
-    type: String,
-    required: true,
-    trim: true,
-    default: ''
-  },
   email: {
     type: String,
+    match:  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
     required: true,
     trim: true,
     unique: true,
@@ -49,14 +44,6 @@ const User = mongoose.Schema({
     required: true,
     unique: true,
     default: ''
-  },
-  dateOfBirth: {
-    type: Date,
-    trim: true,
-    max: '2005-01-01',
-    min: '1930-12-31',
-    default: '',
-    required: true
   },
   countryOfOrigin: {
     type: String,
@@ -98,8 +85,8 @@ const User = mongoose.Schema({
     required: true,
     min: 100000,
     max: 999999,
-    default: 000000
-  }
+    default: 100000
+  },
 }, {timestamps: true});
 
-module.exports = mongoose.model('User', User)
+module.exports = mongoose.model('Staff', Staff);

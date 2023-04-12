@@ -1,8 +1,6 @@
-const multer = require ('multer')
+// const multer = require ('multer')
+// const storage = require('./saveImages')
 
-const uploadImage = (storage) => {
-  const upload = multer({storage: storage, limits: {fileSize: 2500009}})
-  return upload
-}
+// const upload = multer({storage: storage, limits: {fileSize: 2500009}})
 
-module.exports = uploadImage
+// module.exports = upload

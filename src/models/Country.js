@@ -11,7 +11,6 @@ const Country = mongoose.Schema({
     type: String,
     required: true,
     min: 20,
-    max: 600,
     default: '',
     trim: true
   },
@@ -33,26 +32,18 @@ const Country = mongoose.Schema({
     required: true,
     default: '',
   },
-  location: {
-    longitude: {
-      type: Number,
-      required: true,
-      trim: true,
-      unique: true,
-      default: 0.0000
-    },
-    latitude: {
-      type: Number,
-      required: true,
-      trim: true,
-      unique: true,
-      default: 0.0000
-    }
+  longitude: {
+    type: String,
+    required: true,
+    trim: true,
+    default: '0.0000'
   },
-  likes: {
-    type: Number,
-    default: 0.0
+  latitude: {
+    type: String,
+    required: true,
+    trim: true,
+    default: '0.0000'
   }
-})
+}, {timestamps: true})
 
 module.exports = mongoose.model('Country', Country);

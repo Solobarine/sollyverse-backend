@@ -1,7 +1,10 @@
 const mongoose = require ('mongoose');
 
 const Message = mongoose.Schema({
-  sender: 'Sollyverse',
+  sender: {
+    type: String,
+    default: 'Sollyverse'
+  },
   receiver: {
     type: String,
     lowercase: true,
@@ -27,8 +30,10 @@ const Message = mongoose.Schema({
     trim: true,
     default: ''
   },
-  status: 'unopened',
-  timestamp
-});
+  status: {
+    type: String,
+    default: 'unopened'
+  },
+}, {timestamps: true});
 
 module.exports = mongoose.model('Message', Message);

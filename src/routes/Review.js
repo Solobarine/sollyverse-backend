@@ -1,15 +1,19 @@
 const express = require ('express')
+const auth = require ('../middleware/auth')
+const controller = require ('../controllers/reviewController')
 
 const router = express.Router()
 
 // Post a Review
-router.post('/')
+router.post('/', auth, controller.create)
 
-// Show Reviews
-router.get('/city/:id')
+// Show 5 Reviews
+router.get('/city/:id', auth, controller.showFive)
+
+// Show all reviews
+router.get('/city/all', auth, controller.showAll)
 
 // Update Review
-router.put('/update/:id')
+router.put('/update/:id', auth, controller.update)
 
-// Delete Review
-router.delete('/delete/:id')
+module.exports = router
