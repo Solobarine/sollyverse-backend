@@ -4,7 +4,7 @@ const Staff = require ('../models/Staff')
 require('dotenv').config()
 
 const loginWithToken = async (req, res) => {
-  const token = req.header('admin_auth_token')
+  const token = req.header('authentication_token')
   console.log(token)
   if (!token) return res.status(401).send({error: 'Access Denied'})
 
