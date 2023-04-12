@@ -4,6 +4,7 @@ const admin = require ('../middleware/authAdmin')
 const controller = require ('../controllers/userController')
 const staffController = require ('../controllers/staffController')
 const loginWithToken = require('../middleware/loginWithToken')
+const loginWithTokenAdmin = require ('../middleware/loginWithTokenAdmin')
 
 const router = express.Router()
 
@@ -15,6 +16,9 @@ router.post('/token/login', loginWithToken)
 
 // Admin Login
 router.post('/admin/login', controller.adminLogin)
+
+// Admin Token Login
+router.post('/admin/token/login', loginWithTokenAdmin)
 
 // User Registration
 router.post('/register', controller.create)
