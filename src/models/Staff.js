@@ -40,7 +40,6 @@ const Staff = mongoose.Schema({
   },
   phoneNumber: {
     type: String,
-    match:  /^[\+]?[0-9]{3}?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4}$/,
     trim: true,
     required: true,
     unique: true,

@@ -32,21 +32,17 @@ const Country = mongoose.Schema({
     required: true,
     default: '',
   },
-  location: {
-    longitude: {
-      type: String,
-      required: true,
-      trim: true,
-      unique: true,
-      default: '0.0000'
-    },
-    latitude: {
-      type: String,
-      required: true,
-      trim: true,
-      unique: true,
-      default: '0.0000'
-    }
+  longitude: {
+    type: String,
+    required: true,
+    trim: true,
+    default: '0.0000'
+  },
+  latitude: {
+    type: String,
+    required: true,
+    trim: true,
+    default: '0.0000'
   }
 }, {timestamps: true})
 
