@@ -6,10 +6,8 @@ const schema = Joi.object({
   capital: Joi.string().required(),
   continent: Joi.string().required(),
   officialLanguage: Joi.string().required(),
-  location: {
-    longitude: Joi.string().required(),
-    latitude: Joi.string().required()
-  }
+  longitude: Joi.string().required(),
+  latitude: Joi.string().required()
 })
 
 module.exports = schema;

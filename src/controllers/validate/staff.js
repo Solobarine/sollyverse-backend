@@ -7,7 +7,7 @@ const schema = Joi.object({
   email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }).required(),
   password: Joi.string().min(8).max(20).required(),
   confirmPassword: Joi.string().min(8).max(20).required(),
-  phoneNumber: Joi.string().pattern(new RegExp('^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4}$')).required(),
+  phoneNumber: Joi.string().pattern(new RegExp('^[\s()+-]*([0-9][\s()+-]*){6,20}$')).required(),
   dateOfBirth: Joi.date().less('2007-1-1').greater('1920-1-1'),
   countryOfOrigin: Joi.string().min(3).required(),
   addressOne: Joi.string().required(),
