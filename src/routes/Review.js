@@ -10,10 +10,13 @@ router.post('/', auth, controller.create)
 // Show 5 Reviews
 router.get('/city/:id', auth, controller.showFive)
 
+// Check if user reviwed a destination
+router.post('/city/user', auth, controller.showOne)
+
 // Show all reviews
 router.get('/city/all', auth, controller.showAll)
 
 // Update Review
-router.put('/update/:id', auth, controller.update)
+router.patch('/:id', auth, controller.update)
 
 module.exports = router

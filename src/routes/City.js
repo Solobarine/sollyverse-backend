@@ -16,10 +16,10 @@ router.post('/', controller.create)
 router.get('/:id', controller.showOne)
 
 // Show favourite cities
-router.get('/favourites', controller.showFavourites)
+router.get('/favourites', auth, controller.showFavourites)
 
 // Show top 5 cities
-router.get('/top', controller.showTopFive)
+router.get('/top/cities', controller.showFiveCities)
 
 // Update a City
 router.patch('/:id', admin, controller.update)
