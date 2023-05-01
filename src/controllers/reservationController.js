@@ -15,7 +15,7 @@ module.exports = {
     // Check user
     const user = User.findById(req.user)
     // Check if city exists
-    const cityId = req.body.id
+    const cityId = req.body.cityId
     const cityExists = await City.findById(cityId)
     if (!cityExists) return res.status(404).send({error: 'City not Found'})
 
@@ -29,15 +29,22 @@ module.exports = {
   },
   showReservation: async (req, res) => {
     //Verify user
-    const user = User.findById(req.user)
-    if (user.email !== req.body.email) return res.status(400).send({error: 'Access Denied'})
+    const user = await User.findById(req.user)
 
     //Get reservations
     const reservations = await Reservation.find({email: user.email})
+
     if (!reservations) return res.status(404).send({error: 'No Reservations Found'})
+    const arr = Object.values(reservations)
+    
+    const city_ids = arr.map((item) => {
+      return item.cityId
+    })
+    
+    const cities = await City.find().where('_id').in(city_ids).select({_id: 1, name: 1, country: 1, images: 1})
 
     //send response
-    res.status(200).send({reservations})
+    res.status(200).send({reservations, cities})
   },
   cancel: async (req, res) => {
     // Verify user

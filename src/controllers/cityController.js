@@ -1,8 +1,5 @@
-const fs = require ('fs')
-const path = require ('path')
 const schema = require ('./validate/city');
 const City = require ('../models/City');
-const upload = require ('../middleware/upload');
 const likeController = require ('./likeController');
 const saveImages = require('../middleware/saveImages');
 
@@ -17,17 +14,23 @@ module.exports = {
     const cityExists = await City.findOne({name: req.body.name})
     if (cityExists) return res.status(400).send({error: 'City already exists'})
 
-    const country = req.body.country.replaceAll('', '')
-    console.log(country)
-    const convertedImages = saveImages(req.body.images, country, req.body.name)
-    console.log(convertedImages)
+    if (!req.body.country || req.body.city) return res.send('You Incomplete request.')
+
+    const photos = req.body.images.map((image) => {
+      const base64 = image.split(';base64,')
+      const extension = base64[0].split('/')[1]
+      return {extension, base64: base64[1]}
+    })
+
+    const convertedImages = saveImages(photos, req.body.country, req.body.name)
     req.body.images = convertedImages
 
-    // save city
+    // Save city
     const city = new City(req.body)
     await city.save()
+    console.log(city)
     // send response
-    return res.status(200).send({status:'City added successfully'})
+    return res.status(200).send({status:'City added successfully', city})
   },
   showAll: async (req, res) => {
     //Query cities
@@ -40,7 +43,9 @@ module.exports = {
   showOne: async (req, res) => {
     //Query city
     const cityId = req.params.id
+    console.log(cityId)
     const city = await City.findById(cityId)
+    console.log(city)
     if (!city) return res.status(401).send({error: 'City could not be Found'})
 
     //send response
@@ -48,7 +53,7 @@ module.exports = {
   },
   showTopFive: async (req, res) => {
     // Query cities
-    const topCitiesIds = likeController.mostPopularDestination
+    const topCitiesIds = likeController.mostPopularDestinations
 
     console.log(topCitiesIds)
     if (!topCitiesIds) return res.status(401).send({error: 'Cities not found'})
@@ -59,6 +64,13 @@ module.exports = {
 
     // Send response
     return res.status(200).send(topCities)
+  },
+  showFiveCities: async (req, res) => {
+    const cities = await City.find().select({_id: 1, name: 1, country: 1, images: 1, cost: 1}).limit(5)
+    console.log(cities)
+    if (cities.length === 0) return res.status(404).send({error: 'Unable to find Cities'})
+
+    return res.status(200).send({cities})
   },
   showFavourites: async (req, res) => {
     const email = req.body.email
@@ -74,21 +86,10 @@ module.exports = {
 
   },
   update: async (req, res) => {
-    const cityId = req.body._id
-    const city = await City.findById(cityId)
+    const city = await City.findOne({name: req.body.name})
     if (!city) return res.status(401).send({error: 'City not Found'})
 
-    // const images = city.images
-    // const {name, country, description, rating, location, visitors} = req.body
-    // city.name = name
-    // city.country = country
-    // city.description = description
-    // city.rating = rating
-    // city.location = location
-    // city.visitors = visitors
-    // city.images = images
-
-    await City.updateOne({_id: cityId}, req.body)
+    await City.updateOne({name: req.body.name}, req.body)
     return res.status(200).send({status: 'City updated successfully'})
   },
   delete: async (req, res) => {
@@ -100,7 +101,7 @@ module.exports = {
     return res.status(200).send({status:'City removed successfully'})
   },
   showCities: async (name) => {
-    const cities = await City.find({ country: name}).select({_id: 1, name: 1, cost: 1})
+    const cities = await City.find({ country: name}).select({_id: 1, name: 1, cost: 1, images: 1}).limit(5)
     if (!cities) return null
     return cities
   }
