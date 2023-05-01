@@ -2,6 +2,7 @@ const express = require ('express');
 const cors = require ('cors');
 const cookie = require ('cookie');
 const mongoose = require ('mongoose');
+const path = require ('path')
  
 const user = require ('./src/routes/User')
 const city = require ('./src/routes/City')
@@ -17,7 +18,7 @@ require('dotenv').config();
 
 //const password = process.env.SECURE_PASSWORD;
 
-//const connectionString = `mongodb+srv://sollyverse:${password}@sollyverse.qr8xevw.mongodb.net/?retryWrites=true&w=majority`
+//const mongo_url = `mongodb+srv://sollyverse:${password}@sollyverse.qr8xevw.mongodb.net/?retryWrites=true&w=majority`
 const mongo_url = `mongodb://localhost:27017/`
 const whitelist = [process.env.DEVELOPMENT_ADDRESS, process.env.PRODUCTION_ADDRESS]
 const corsOption = {
@@ -48,13 +49,15 @@ app.use(cors({
   credenials: true
 }))
 
-app.use(express.json())
+app.use(express.static('public'))
+
+app.use(express.json({limit: '10mb'}))
 
 // Add Routes
 app.use('/', user)
 app.use('/city', city)
 app.use('/country', country)
-app.use('like', like)
+app.use('/likes', like)
 app.use('/message', message)
 app.use('/reservations', reservation)
 app.use('/review', review)
