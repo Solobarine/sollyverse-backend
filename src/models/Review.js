@@ -3,7 +3,6 @@ const mongoose = require ('mongoose');
 const Review = mongoose.Schema({
   destinationId: {
     type: String,
-    match: '',
     required: true,
     trim: true,
     default: ''
@@ -34,10 +33,10 @@ const Review = mongoose.Schema({
     unique: true,
     default: ''
   },
-  reviewTitle: {
+  title: {
     type: String,
     min: 2,
-    max: 20,
+    max: 60,
     required: true,
     trim: true,
     default: ''
@@ -45,11 +44,18 @@ const Review = mongoose.Schema({
   review: {
     type: String,
     min: 2,
-    max: 70,
+    max: 800,
     trim: true,
     default: '',
     required: true
   },
+  rating: {
+    type: Number,
+    required: true,
+    min: 1,
+    max: 5,
+    default: 1
+  }
 }, {timestamps: true});
 
 module.exports = mongoose.model('Review', Review);

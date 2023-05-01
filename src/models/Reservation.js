@@ -30,7 +30,6 @@ const Reservation = mongoose.Schema({
     match:  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
     required: true,
     trim: true,
-    unique: true,
     default: ''
   },
   startDate: {

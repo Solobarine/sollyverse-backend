@@ -20,6 +20,15 @@ const City = mongoose.Schema({
     required: true,
     default: ''
   },
+  images: {
+    type: Array,
+    required: true
+  },
+  cost: {
+    type: Number,
+    required: true,
+    default: 0
+  },
   longitude: {
     type: String,
     required: true,
@@ -29,6 +38,11 @@ const City = mongoose.Schema({
     type: String,
     required: true,
     default: 0.0000
+  },
+  likes: {
+    type: Number,
+    required: true,
+    default: 0
   }
 }, {timestamps: true});
 
