@@ -8,19 +8,25 @@ module.exports = {
     const validate = schema.validate(req.body)
     if (validate.error) return res.status(400).send({error: validate.error})
 
-    // Check if like exists
-
-    const checkLike = await Like.findOne({email: req.body.email, destinationId: req.body.destinationId})
-    const city = await City.findOne({_id: req.body.destinationId})
-
+    const city = await City.findOne({_id: req.body.city})
+    console.log(city);
     if (!city) return res.status(404).send({error: 'This City does not exist'})
 
+    const checkLike = await Like.findOne({user: req.body.user, city: req.body.city})
+    .populate({
+      path: 'city',
+      select: 'name'
+    })
+    .populate({
+      path:'user',
+      select: 'email'
+    })
+
     if (checkLike) {
-      await Like.deleteOne({email: req.body.email, destinationId: req.body.destinationId})
+      await Like.deleteOne({email: req.body.email, city: req.body.city})
       city.likes -= 1
       return await city.save()
     }
-    console.log(checkLike)
 
     // save likes
     const like = new Like(req.body)
@@ -36,15 +42,16 @@ module.exports = {
     // Remove like
     await Like.deleteOne({email: req.body.email, destinationId: req.body.destinationId})
   },
-  showUserLikes: async (req, res) => {
-    const likes = await Like.find({email: req.body.email})
-    if (likes.length === 0) return res.status(404).send({error: 'You do not have any likes.'})
+  showUserLikes: async (userId) => {
+    const likes = await Like.find({user: userId})
+    console.log(likes);
+    if (likes.length === 0) return []
 
-    return res.status(200).send((likes))
+    return likes
   },
   showNumberOfLikes: async (id) => {
-    const numberOfLikes = await Like.countDocuments({destinationId: id})
-    if (!numberOfLikes) return null
+    const numberOfLikes = await Like.countDocuments({city: id})
+    if (!numberOfLikes) return 0
     
     return numberOfLikes
   },
@@ -57,9 +64,17 @@ module.exports = {
     }])
     return popularDestinations
   },
-  favouriteDestinations: async (email) => {
-    const favourites = await Like.find({email}).select({destinationId: 1})
-    if (!favourites) return null
-    return favourites
+  favouriteDestinations: async (req, res) => {
+    console.log(req.user);
+    const favourites = await Like.find({user: req.user._id}).populate({
+      path: 'city',
+      select: 'images name country _id cost',
+      populate: {
+        path: 'country',
+        select: 'name'
+      }
+    })
+    if (!favourites) return res.status(404).send({error: 'No Favourites Found'})
+    return res.status(200).send({favourites})
   }
 }
