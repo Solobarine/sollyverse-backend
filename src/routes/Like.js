@@ -8,10 +8,13 @@ const router = express.Router()
 router.post('/', auth, controller.create)
 
 // Get all Likes
-router.get('/:id', auth, controller.showNumberOfLikes)
+router.get('/like/:id', auth, controller.showNumberOfLikes)
 
 // Get User Likes
 router.post('/user', auth, controller.showUserLikes)
+
+// Get Favourite Cities
+router.get('/favourites', auth, controller.favouriteDestinations)
 
 // Cancel Like
 router.delete('/delete/:id', auth, controller.delete)

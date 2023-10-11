@@ -32,6 +32,11 @@ const Country = mongoose.Schema({
     required: true,
     default: '',
   },
+  imageUrl: {
+    type: String,
+    trim: true,
+    required: true
+  },
   longitude: {
     type: String,
     required: true,

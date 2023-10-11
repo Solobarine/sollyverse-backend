@@ -1,37 +1,15 @@
 const mongoose = require ('mongoose');
 
 const Review = mongoose.Schema({
-  destinationId: {
-    type: String,
+  city: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'City',
     required: true,
-    trim: true,
-    default: ''
   },
-  firstName: {
-    type: String,
-    lowercase: true,
-    required: true,
-    trim: true,
-    min: 2,
-    max: 30,
-    default: ''
-  },
-  lastName: {
-    type: String,
-    lowercase: true,
-    required: true,
-    trim: true,
-    min: 2,
-    max: 30,
-    default: ''
-  },
-  email: {
-    type: String,
-    match:  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
-    required: true,
-    trim: true,
-    unique: true,
-    default: ''
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   },
   title: {
     type: String,
@@ -51,10 +29,9 @@ const Review = mongoose.Schema({
   },
   rating: {
     type: Number,
-    required: true,
     min: 1,
     max: 5,
-    default: 1
+    required: true
   }
 }, {timestamps: true});
 

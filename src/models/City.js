@@ -9,10 +9,9 @@ const City = mongoose.Schema({
     default: ''
   },
   country: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Country',
     required: true,
-    trim: true,
-    default: ''
   },
   description: {
     type: String,

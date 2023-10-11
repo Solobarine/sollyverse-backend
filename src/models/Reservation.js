@@ -1,36 +1,15 @@
 const mongoose = require ('mongoose');
 
 const Reservation = mongoose.Schema({
-  cityId: {
-    type: String,
-    trim: true,
-    default: '',
+  city: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'City',
     required: true
   },
-  firstName: {
-    type: String,
-    lowercase: true,
-    required: true,
-    trim: true,
-    min: 2,
-    max: 30,
-    default: ''
-  },
-  lastName: {
-    type: String,
-    lowercase: true,
-    required: true,
-    trim: true,
-    min: 2,
-    max: 30,
-    default: ''
-  },
-  email: {
-    type: String,
-    match:  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
-    required: true,
-    trim: true,
-    default: ''
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   },
   startDate: {
     type: Date,
@@ -51,7 +30,7 @@ const Reservation = mongoose.Schema({
   },
   status: {
     type: String,
-    default: 'success'
+    default: 'pending'
   }
 }, {timestamps: true});
 
