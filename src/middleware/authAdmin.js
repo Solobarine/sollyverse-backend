@@ -4,10 +4,11 @@ require('dotenv').config()
 
 const verifyAdmin = async (req, res, next) => {
   const token = req.header('authentication_token')
+  console.log(token);
   if (!token) return res.status(401).send({error: 'Token not found'})
 
   try {
-    const validate = jwt.verify(token, process.env.PRIVATE_KEY)
+    const validate = jwt.verify(token, process.env.SECURE_PASSWORD)
     const admin = await Admin.findById(validate._id).select({_id: 1})
     console.log(validate)
     req.admin = admin
