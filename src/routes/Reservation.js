@@ -8,7 +8,7 @@ const router = express.Router()
 router.get('/recent')
 
 // Get User reservations
-router.get('/', auth, controller.showReservation)
+router.get('/', auth, controller.showReservations)
 
 // Create a Reservation
 router.post('/', auth, controller.create)

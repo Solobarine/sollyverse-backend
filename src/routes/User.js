@@ -8,11 +8,25 @@ const loginWithTokenAdmin = require ('../middleware/loginWithTokenAdmin')
 
 const router = express.Router()
 
+/* User API Routes */
+
 // User Login
 router.post('/login', controller.login)
 
+// User Registration
+router.post('/register', controller.create)
+
 // Login With token
-router.post('/token/login', loginWithToken)
+router.post('/verify-token', loginWithToken)
+
+// Update User details
+router.put('/update', auth, controller.updateBio)
+
+// Cancel User Account
+router.delete('/delete', auth, controller.delete)
+
+
+/* Admin API Routes */
 
 // Admin Login
 router.post('/admin/login', controller.adminLogin)
@@ -20,22 +34,13 @@ router.post('/admin/login', controller.adminLogin)
 // Admin Token Login
 router.post('/admin/token/login', loginWithTokenAdmin)
 
-// User Registration
-router.post('/register', controller.create)
-
 // Admin Registration
 router.post('/admin/register', controller.createAdmin)
 
 // Register Staff
 router.post('/admin/staff/create', admin, staffController.create)
 
-// Update User details
-router.put('/update', auth, controller.updateBio)
-
 // Update Admin Bio
 router.put('/admin/update', admin, controller.updateAdmin)
-
-// Cancel User Account
-router.delete('/delete', auth, controller.delete)
 
 module.exports = router
