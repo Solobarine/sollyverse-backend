@@ -11,44 +11,42 @@ module.exports = {
     if (validate.error) return res.status(400).send({error: validate.error.details[0].message})
 
     // Check if country exists
-    const {name} = req.body
-    const checkCountry = await Country.findOne({name})
+    const checkCountry = await Country.findOne({name: req.body.name})
     if (checkCountry) return res.status(400).send({error: 'Country already Exists'})
 
     //Save Country to DB
    try {
      const country = new Country(req.body)
      await country.save()
-     return res.status(200).send({response: 'New Country successfully added'})
+     return res.status(201).send({message: 'New Country successfully added', country})
    } catch (error) {
     console.log(error)
     return res.status(400).send({error})
    }
   },
   showAll: async (req, res) => {
-    //Get all Countries
-    const countries = await Country.find({}).select({_id: 1, name: 1})
-    if (!countries) return res.status(400).send({error: 'Could not find any Country'})
-    // Get one Image from Cities
-    const country_ids = countries.map(country => {
-      return country._id
-    })
 
-    const images = await City.find({}).where('country').in(country_ids).select({country: 1, images: 1})
-    if (images.length === 0) return res.status(200).send({countries})
+    //Get all Countries
+    const countries = await Country.find({}).select({name: 1, _id: 1, imageUrl: 1})
+
+    console.log(countries);
+
+    if (!countries) return res.status(404).send({error: 'Countries not Found'})
+
     //Send countries
-    return res.status(200).send({countries, images})
+    return res.status(200).send({countries})
   },
   showOne: async (req, res) => {
     // Get a country
     const countryId = req.params.id
+    console.log(countryId)
     if (!countryId) return res.status(400).send({error: 'Id not found'})
 
     const country = await Country.findOne({_id: countryId})
     if (!country) return res.status(400).send({error: 'Country not Found'})
 
     // Find cities and likes
-    const cities = await cityController.showCities(country.name)
+    const cities = await cityController.showCities(countryId)
     const likes = await likeController.showNumberOfLikes(countryId)
     
     // send response
@@ -61,13 +59,10 @@ module.exports = {
 
     // Query country
     const countryId = req.params.id
-    const country = await Country.findOne({_id: countryId})
-    if (!country) return res.status(400).send('Country not Found')
 
-    //update country
     try {
-      await Country.updateOne({_id: countryId}, req.body)
-      //send response
+      const country = await Country.findandUpdateOne({_id: countryId}, req.body)
+      if (!country) return res.status(400).send('Country not Found')
       return res.status(200).send({response: 'Country successfully updated'})
     } catch (error) {
       return res.status(401).send({error})
@@ -77,12 +72,12 @@ module.exports = {
     // Query Country
     const countryId = req.params.id
     const country = await Country.findById(countryId)
-    if (!country) return res.status(400).send({response: 'Country not Found'})
+    if (!country) return res.status(400).send({message: 'Country not Found'})
 
     //delete country
-    country.deleteOne({_id: countryId})
+    Country.deleteOne({_id: countryId})
 
     //send response
-    return res.status(200).send({response: 'Country deleted Successfully'})
+    return res.status(200).send({message: 'Country deleted Successfully'})
   }
 }
