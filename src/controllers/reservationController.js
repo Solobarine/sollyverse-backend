@@ -10,41 +10,35 @@ module.exports = {
     // Validate reservation
     const validate = schema.validate(req.body)
     const {error} = validate
+    console.log(error);
     if (error) return res.status(400).send({error})
+    const user = await User.findById({_id: req.user._id})
+  console.log(user);
 
-    // Check user
-    const user = User.findById(req.user)
     // Check if city exists
-    const cityId = req.body.cityId
-    const cityExists = await City.findById(cityId)
-    if (!cityExists) return res.status(404).send({error: 'City not Found'})
+    const cityId = req.body.city
+    const city = await City.findById({_id: cityId}).populate('country')
+    console.log(city);
+    if (!city) return res.status(404).send({error: 'City not Found'})
 
     // save reservation
     const reservation = new Reservation(req.body)
     await reservation.save()
-    messageController.createMessageReservation(user._id, user.email, messages.createReservation, cityExists.name, cityExists.country, user._id)
+    messageController.createMessageReservation(user._id, user.email, messages.createReservation, city.name, city.country.name, user._id)
 
     // send response
-    res.status(200).send({response: 'Reservation successfully created'})
+    res.status(201).send({message: 'Reservation successfully created', reservation})
   },
-  showReservation: async (req, res) => {
-    //Verify user
-    const user = await User.findById(req.user)
-
+  showReservations: async (req, res) => {
     //Get reservations
-    const reservations = await Reservation.find({email: user.email})
+    const reservations = await Reservation.find({user: req.user._id}).populate('city')
+
+    console.log(reservations)
 
     if (!reservations) return res.status(404).send({error: 'No Reservations Found'})
-    const arr = Object.values(reservations)
-    
-    const city_ids = arr.map((item) => {
-      return item.cityId
-    })
-    
-    const cities = await City.find().where('_id').in(city_ids).select({_id: 1, name: 1, country: 1, images: 1})
 
     //send response
-    res.status(200).send({reservations, cities})
+    res.status(200).send({reservations})
   },
   cancel: async (req, res) => {
     // Verify user
