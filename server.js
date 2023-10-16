@@ -15,7 +15,8 @@ require('dotenv').config();
 
 //const password = process.env.SECURE_PASSWORD;
 
-const mongo_url = process.env.MONGODB_URL_DEV
+const mongo_url = (process.env.APP_ENV === 'Development' ) ? process.env.MONGODB_URL_DEV : process.env.MONGODB_URL_PROD
+console.log(mongo_url);
 
 // const whitelist = [process.env.DEVELOPMENT_ADDRESS, process.env.PRODUCTION_ADDRESS]
 // const corsOption = {
