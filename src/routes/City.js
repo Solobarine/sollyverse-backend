@@ -10,20 +10,19 @@ const router = express.Router()
 router.get('/', controller.showAll)
 
 // Create a City
-router.post('/', controller.create)
-
-// Get a City
-router.get('/:id', controller.showOne)
-
-// Show favourite cities
-router.get('/favourites', controller.showFavourites)
+router.post('/', admin, upload.array('files'), controller.create)
 
 // Show top 5 cities
-router.get('/top', controller.showTopFive)
+router.get('/top', controller.showTopFour)
+
+// Show % Random Cities
+router.get('/random', controller.showFiveCities)
 
 // Update a City
 router.patch('/:id', admin, controller.update)
 
+// Get a City
+router.get('/:id', controller.showOne)
 // Delete a City
 router.delete('/:id', admin, controller.delete)
 

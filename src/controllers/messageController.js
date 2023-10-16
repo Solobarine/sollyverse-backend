@@ -9,7 +9,7 @@ module.exports = {
     if (validate.error) return res.status(400).send({error: validate.error})
 
     // validate receiver
-    const user = await User.findOne({email: req.body.email})
+    const user = await User.findOne({_id: req.user._id})
     if (!user) return res.status(404).send('User not Found')
 
     // save message
@@ -17,7 +17,7 @@ module.exports = {
     await message.save()
 
     // send response
-    res.status(200).send('Message created successfully')
+    res.status(200).send({response: 'Message created successfully'})
   },
   createMessageReservation: async (receiver, email, content, city, country, id) => {
     const description = content(city, country, id)
@@ -39,21 +39,21 @@ module.exports = {
   },
   view: async (req, res) => {
     //Validate User
-    const user = await User.findbyId(req.user)
-    if (!user) return res.status(404).send('Access Denied')
+    const user = await User.findById({_id: req.user._id})
+    if (!user) return res.status(404).send({error: 'Access Denied'})
 
     //Get messages
     const messages = await Message.find({email: user.email})
-    if (!messages) return res.status(404).send('Messages not Found')
+    if (!messages) return res.status(404).send({error: 'Messages not Found'})
 
     //send response
-    res.status(200).send(messages)
+    return res.status(200).send({messages})
   },
   markAsRead: async (req, res) => {
     // Get message
     const id = req.params.id
     const message = await Message.findById(id)
-    if (!message) return res.status(404).send('Message not Found')
+    if (!message) return res.status(404).send({error: 'Message not Found'})
 
     // update status
     message.status = 'opened'

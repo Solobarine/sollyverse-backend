@@ -43,13 +43,6 @@ const User = mongoose.Schema({
     required: true,
     default: ''
   },
-  phoneNumber: {
-    type: String,
-    trim: true,
-    required: true,
-    unique: true,
-    default: ''
-  },
   dateOfBirth: {
     type: Date,
     trim: true,
@@ -97,8 +90,7 @@ const User = mongoose.Schema({
     type: Number,
     required: true,
     min: 100000,
-    max: 999999,
-    default: 000000
+    max: 999999
   }
 }, {timestamps: true});
 

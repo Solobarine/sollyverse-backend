@@ -1,37 +1,38 @@
-const fs = require ('fs')
-const path = require ('path')
-const schema = require ('./validate/city');
-const City = require ('../models/City');
-const upload = require ('../middleware/upload');
-const likeController = require ('./likeController');
-const saveImages = require('../middleware/saveImages');
-
+const schema = require ('./validate/city')
+const City = require ('../models/City')
+const Like = require('../models/Like')
+const Country = require('../models/Country')
+const uploadToSupabase = require('../middleware/supabase')
 
 module.exports = {
   create: async (req, res) => {
+
     // Validate city
     const validate = schema.validate(req.body)
     if (validate.error) return res.status(400).send(validate.error)
-
+    
+    
+    const countryExists = await Country.findOne({_id: req.body.country})
+    if (!countryExists) return res.status(404).send({error: 'Country not Found. City cannot be Created'})
     // check if city exists
     const cityExists = await City.findOne({name: req.body.name})
     if (cityExists) return res.status(400).send({error: 'City already exists'})
-
-    const country = req.body.country.replaceAll('', '')
-    console.log(country)
-    const convertedImages = saveImages(req.body.images, country, req.body.name)
-    console.log(convertedImages)
-    req.body.images = convertedImages
-
-    // save city
+    
+    const images = await uploadToSupabase(req.files, req.body.name, req.body.country)
+    console.log(images);
+    if (!images[0]) return res.status(400).send({error: 'Unable to upload Images'})
+    // Save city
+    // Append Image URLs to Request Body
+    req.body.images = await images
     const city = new City(req.body)
     await city.save()
+    console.log(city)
     // send response
-    return res.status(200).send({status:'City added successfully'})
+    return res.status(200).send({status:'City added successfully', city})
   },
   showAll: async (req, res) => {
     //Query cities
-    const cities = await City.find({}).select({_id: 1, name: 1, country: 1, cost: 1})
+    const cities = await City.find({}).select({_id: 1, name: 1, country: 1, cost: 1, images: 1})
     if (!cities) return res.status(401).send({error: 'No City currently Avaliable'})
 
     //send response
@@ -40,56 +41,91 @@ module.exports = {
   showOne: async (req, res) => {
     //Query city
     const cityId = req.params.id
-    const city = await City.findById(cityId)
+    console.log(cityId)
+    const city = await City.findById({_id: cityId})
+    console.log(city)
     if (!city) return res.status(401).send({error: 'City could not be Found'})
 
     //send response
-    return res.status(200).send(city)
+    return res.status(200).send({city})
   },
-  showTopFive: async (req, res) => {
+  showTopFour: async (req, res) => {
     // Query cities
-    const topCitiesIds = likeController.mostPopularDestination
+    const topCities = await Like.aggregate([
+      {
+        $group: {
+          _id: '$city',
+          totalLikes: {$sum: 1},
+        },
+      },
+      {
+        $sort: { totalLikes: -1}
+      },
+      {
+        $limit: 4
+      },
+      {
+        $lookup: {
+          from: 'cities',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'cityInfo',
+        },
+      },
+      {
+        $unwind: '$cityInfo',
+      },
+      {
+        $lookup: {
+          from: 'countries',
+          localField: 'cityInfo.country',
+          foreignField: '_id',
+          as: 'countryInfo',
+        },
+      },
+      {
+        $unwind: '$countryInfo',
+      },
+      {
+        $project: {
+          _id: '$cityInfo._id',
+          cityName: '$cityInfo.name',
+          cost: '$cityInfo.cost',
+          images: '$cityInfo.images',
+          country: {
+            _id: '$countryInfo._id',
+            name: '$countryInfo.name'
+          },
+          totalLikes: 1,
+        },
+      },
+    ])
+    
+    if (!topCities) {
+      topCities = await City.aggregate([
+      { $sample: { size: 4 } }
+    ])
+    }
 
-    console.log(topCitiesIds)
-    if (!topCitiesIds) return res.status(401).send({error: 'Cities not found'})
-
-    const topCities = topCitiesIds.map(async id => {
-      await City.findOne({_id: id}).select({_id: 1, name: 1, cost: 1})
-    }) 
+    if (!topCities) return res.status(401).send({error: 'Cities not found'})
 
     // Send response
     return res.status(200).send(topCities)
   },
-  showFavourites: async (req, res) => {
-    const email = req.body.email
-    const destinationIds = likeController.favouriteDestinations(email)
-    if (!destinationIds) return res.status(401).send({error: 'You currently do not have any favourites'})
+  showFiveCities: async (req, res) => {
+    const cities = await City.aggregate([
+      { $sample: { size: 5 } }
+    ])
+    console.log(cities)
+    if (cities.length === 0) return res.status(404).send({error: 'Unable to find Cities'})
 
-    console.log(destinationIds)
-    const favouriteCities = destinationIds.map(async destination => {
-      await City.find({destinationId: destination}).select({_id: 1, name: 1, country: 1, cost: 1})
-    })
-
-    return res.status(200).send({cities: favouriteCities})
-
+    return res.status(200).send({cities})
   },
   update: async (req, res) => {
-    const cityId = req.body._id
-    const city = await City.findById(cityId)
+    const id = req.params.id
+    const city = await City.findandUpdateOne({_id: id}, req.body)
     if (!city) return res.status(401).send({error: 'City not Found'})
-
-    // const images = city.images
-    // const {name, country, description, rating, location, visitors} = req.body
-    // city.name = name
-    // city.country = country
-    // city.description = description
-    // city.rating = rating
-    // city.location = location
-    // city.visitors = visitors
-    // city.images = images
-
-    await City.updateOne({_id: cityId}, req.body)
-    return res.status(200).send({status: 'City updated successfully'})
+    return res.status(200).send({status: 'City updated successfully', city})
   },
   delete: async (req, res) => {
     const cityId = req.params.id
@@ -99,8 +135,8 @@ module.exports = {
     City.deleteOne({_id: cityId})
     return res.status(200).send({status:'City removed successfully'})
   },
-  showCities: async (name) => {
-    const cities = await City.find({ country: name}).select({_id: 1, name: 1, cost: 1})
+  showCities: async (countryId) => {
+    const cities = await City.find({country: countryId}).select({_id: 1, name: 1, cost: 1, images: 1}).limit(5)
     if (!cities) return null
     return cities
   }

@@ -1,6 +1,6 @@
-// const multer = require ('multer')
-// const storage = require('./saveImages')
+const multer = require('multer')
 
-// const upload = multer({storage: storage, limits: {fileSize: 2500009}})
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage })
 
-// module.exports = upload
+module.exports = upload

@@ -19,7 +19,6 @@ const Message = mongoose.Schema({
     match:  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
     required: true,
     trim: true,
-    unique: true,
     default: ''
   },
   message: {
@@ -30,10 +29,18 @@ const Message = mongoose.Schema({
     trim: true,
     default: ''
   },
-  status: {
-    type: String,
-    default: 'unopened'
+  opened: {
+    type: Boolean,
+    default: false
   },
+  important: {
+    type: Boolean,
+    default: false
+  },
+  archived: {
+    type: Boolean,
+    default: false
+  }
 }, {timestamps: true});
 
 module.exports = mongoose.model('Message', Message);

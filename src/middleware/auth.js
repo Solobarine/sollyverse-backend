@@ -4,11 +4,11 @@ require('dotenv').config()
 
 const verifyToken = async (req, res, next) => {
   const token = req.header('authentication_token')
-  if (!token) return res.status(401).send('Access Denied')
+  if (!token) return res.status(401).send({error: 'Access Denied'})
 
   try {
     console.log(token)
-    const validate = jwt.verify(token, process.env.PRIVATE_KEY)
+    const validate = jwt.verify(token, process.env.SECURE_PASSWORD)
     const user = await User.findById(validate._id).select({_id: 1})
     req.user = user
     next()

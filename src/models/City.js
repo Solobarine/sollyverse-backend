@@ -9,16 +9,24 @@ const City = mongoose.Schema({
     default: ''
   },
   country: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Country',
     required: true,
-    trim: true,
-    default: ''
   },
   description: {
     type: String,
     trim: true,
     required: true,
     default: ''
+  },
+  images: {
+    type: Array,
+    required: true
+  },
+  cost: {
+    type: Number,
+    required: true,
+    default: 0
   },
   longitude: {
     type: String,
@@ -29,6 +37,11 @@ const City = mongoose.Schema({
     type: String,
     required: true,
     default: 0.0000
+  },
+  likes: {
+    type: Number,
+    required: true,
+    default: 0
   }
 }, {timestamps: true});
 
